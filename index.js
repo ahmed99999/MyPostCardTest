@@ -9,7 +9,6 @@ selectPrice.addEventListener("change", async (event) => {
     const thumbnails = jsonData["content"];
     prices.forEach(price => {
         const thumbnail = thumbnails.find(thumbnail => thumbnail["id"] === price.id);
-        console.log(thumbnail.id);
         price.innerText = thumbnail[selectPriceValue] + " €";
     });
 

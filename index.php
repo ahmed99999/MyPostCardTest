@@ -31,7 +31,7 @@
                         <td><?php echo $thumbnail['title'];?></td>
                         <td class="price" id=<?= $thumbnail["id"]?>><?php echo $thumbnail['price']." €";?></td>
                         <td class="backGray">
-                            <form method="POST" action="../index.php">
+                            <form method="POST" action="templates/index.php">
                                 <input type="hidden" name="thumbnail_url" value="<?=$thumbnail['thumb_url']?>">
                                 <button class="btn btn-primary" type="submit">Get PDF</button>
                             </form>
