@@ -136,6 +136,7 @@ function getThumbnails() {
     $thumbnailsURL = "https://appdsapi-6aa0.kxcdn.com/content.php?lang=de&json=1&search_text=berlin&currencyiso=EUR";
     $data = json_decode ( makeRequest( $thumbnailsURL )["get"](), true );
     // shortening the list to 25 thumbnails
+    $content = isset( $data["content"] ) ? $data["content"] : [];
     $thumbnails = array_slice( $data["content"], 0, 25 );
     return array_map( 'mapToThumbnail', $thumbnails );
 }
@@ -143,7 +144,8 @@ function getThumbnails() {
 function getCards(){
     $cardsURL = "https://www.mypostcard.com/mobile/product_prices.php?json=1&type=get_postcard_products&currencyiso=EUR";
     $data = json_decode( makeRequest( $cardsURL )["get"](), true );
-    $products = array_map ( "mapToProduct", $data["products"]); 
+    $data = isset( $data["products"] ) ? $data["products"] : [];
+    $products = array_map ( "mapToProduct", $data );
     $productOptions = [];
     foreach ($products as $product) {
         $productOptions = array_merge( $productOptions, $product );
