@@ -5,9 +5,9 @@ include('TCPDF-master/tcpdf.php');
 function makeRequest( string $url ): array {
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     return [
         'get' => function() use ( $curl ) {
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $data = curl_exec($curl);
             curl_close( $curl );
             return $data ;
@@ -15,7 +15,6 @@ function makeRequest( string $url ): array {
         'post' => function( array $body ) use ( $curl ) {
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( $body ));
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             $data = curl_exec($curl);
             curl_close ( $curl );
             return $data;
@@ -49,13 +48,19 @@ function imageFormat ( string $type, $sourceImage ){
     return $imageFormats[ $type ]();
 }
 
-function getResizedImage( $url, $width ){
+function getPercentage( $width, $height, $oldWidth, $oldHeight ){
+    if ( isset( $width ) ) return (( $width * 100 ) / $oldWidth );
+    elseif ( isset( $height ) ) return (( $height * 100 ) / $oldHeight );
+    else return 100;
+}
+
+function getResizedImage( string $url, $width, $height ){
     $sourceImageType = pathinfo( $url, PATHINFO_EXTENSION );
-    $thumb=1;
     list( $oldWidth, $oldHeight ) = getimagesize( $url );
-    $percentage = ( $width * 100 ) / $oldWidth;
-    $height = ( $oldHeight * $percentage ) / 100;
-    $thumb = imagecreatetruecolor( $width, $height );
+    $percentage = getPercentage( $width, $height, $oldWidth, $oldHeight );
+    $height = isset( $height ) ? $height : ( $oldHeight * $percentage ) / 100;
+    $width  = isset( $width ) ? $width : ( $oldWidth * $percentage ) / 100;
+    $thumb  = imagecreatetruecolor( $width, $height );
     $sourceImage = imageCreateFrom( $sourceImageType, $url );
     imagecopyresized($thumb, $sourceImage, 0, 0, 0, 0, $width, $height, $oldWidth, $oldHeight);
     return [
@@ -79,7 +84,7 @@ function mapToThumbnail( $thumbnail ){
     $thumbnail_url = $thumbnail["thumb_url"];
     $title = $thumbnail["title"];
     return [
-        "thumbnailImage" => function() use ( $thumbnail_url ) { return getResizedImage( $thumbnail_url, 200 );},
+        "thumbnailImage" => function() use ( $thumbnail_url ) { return getResizedImage( $thumbnail_url, 200, null );},
         "price" => $thumbnail["price"],
         "title" => $title,
         "thumb_url" => $thumbnail_url,
