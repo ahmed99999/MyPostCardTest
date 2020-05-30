@@ -137,7 +137,7 @@ function getThumbnails() {
     $data = json_decode ( makeRequest( $thumbnailsURL )["get"](), true );
     // shortening the list to 25 thumbnails
     $content = isset( $data["content"] ) ? $data["content"] : [];
-    $thumbnails = array_slice( $data["content"], 0, 25 );
+    $thumbnails = array_slice( $content, 0, 25 );
     return array_map( 'mapToThumbnail', $thumbnails );
 }
 
